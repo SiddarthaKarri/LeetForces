@@ -1,0 +1,1124 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+:root {
+  /* Light mode colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  
+  /* LeetCode specific colors */
+  --easy-color: #00b8a3;
+  --medium-color: #ffa116;
+  --hard-color: #ff375f;
+  --accepted-color: #00b8a3;
+  --progress-bg: #f1f5f9;
+  
+  /* LeetCode heatmap green colors */
+  --green-20: #9be9a8;
+  --green-40: #40c463;
+  --green-60: #30a14e;
+  --green-80: #216e39;
+  --fill-tertiary: #ebedf0;  /* Light gray for empty days in light mode */
+}
+
+.dark {
+  /* Dark mode colors */
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-tertiary: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border-color: #334155;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --progress-bg: #334155;
+  
+  /* Dark mode LeetCode heatmap colors */
+  --green-20: #0e4429;
+  --green-40: #006d32;
+  --green-60: #26a641;
+  --green-80: #39d353;
+  --fill-tertiary: #21262d;  /* Dark gray for empty days in dark mode */
+}
+
+/* Global styles */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+body {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Card styles */
+.leet-card {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px var(--shadow-color);
+  transition: all 0.3s ease;
+}
+
+.leet-card:hover {
+  box-shadow: 0 4px 12px var(--shadow-color);
+  transform: translateY(-1px);
+}
+
+/* Profile section */
+.profile-content .profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid var(--border-color);
+  object-fit: cover;
+}
+
+.profile-content .profile-name {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--text-primary);
+}
+
+.profile-content .profile-username {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.profile-stats {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+.profile-stat {
+  text-align: center;
+}
+
+.profile-stat-value {
+  font-size: 20px;
+  font-weight: 600;
+  display: block;
+}
+
+.profile-stat-label {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* Progress bars */
+.progress-container {
+  margin: 16px 0;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: var(--progress-bg);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s ease-in-out;
+}
+
+.progress-fill.easy {
+  background-color: var(--easy-color);
+}
+
+.progress-fill.medium {
+  background-color: var(--medium-color);
+}
+
+.progress-fill.hard {
+  background-color: var(--hard-color);
+}
+
+/* Difficulty colors */
+.difficulty-easy {
+  color: var(--easy-color);
+  font-weight: 600;
+}
+
+.difficulty-medium {
+  color: var(--medium-color);
+  font-weight: 600;
+}
+
+.difficulty-hard {
+  color: var(--hard-color);
+  font-weight: 600;
+}
+
+/* Badges */
+.skill-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  margin: 4px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.skill-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.skill-badge.advanced {
+  background-color: #dc2626;
+  color: white;
+}
+
+.skill-badge.intermediate {
+  background-color: #ea580c;
+  color: white;
+}
+
+.skill-badge.fundamental {
+  background-color: #059669;
+  color: white;
+}
+
+/* SVG Heatmap Styles */
+.leetcode-svg-heatmap {
+  position: relative;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 10px 0;
+}
+
+.leetcode-svg-heatmap svg {
+  display: block;
+  min-width: 100%;
+}
+
+/* Heatmap Tooltip */
+.heatmap-tooltip {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  animation: fadeIn 0.2s ease-out;
+  font-size: 11px !important;
+  padding: 6px 8px !important;
+  border-radius: 6px !important;
+  max-width: 140px !important;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.heatmap-tooltip div:first-child {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  margin-bottom: 2px !important;
+}
+
+.heatmap-tooltip div:last-child {
+  font-size: 10px !important;
+  opacity: 0.8;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-100%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-100%) scale(1);
+  }
+}
+
+/* Month separator styling */
+.leetcode-svg-heatmap line {
+  transition: opacity 0.2s ease;
+}
+
+.leetcode-svg-heatmap:hover line {
+  opacity: 0.5 !important;
+}
+
+/* Heatmap cell hover effects */
+.leetcode-svg-heatmap rect {
+  transition: all 0.1s ease;
+}
+
+.leetcode-svg-heatmap rect:hover {
+  stroke: var(--easy-color) !important;
+  stroke-width: 1 !important;
+}
+
+/* LeetCode Heatmap - Clean Implementation */
+.leetcode-heatmap-container {
+  position: relative;
+  width: 100%;
+  overflow: visible;
+}
+
+/* Heatmap Legend */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.legend-colors {
+  display: flex;
+  gap: 2px;
+}
+
+.legend-square {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  cursor: help;
+}
+
+.legend-square.level-0 { 
+  background-color: #ebedf0;
+}
+
+.legend-square.level-1 { 
+  background-color: #9be9a8;
+}
+
+.legend-square.level-2 { 
+  background-color: #40c463;
+}
+
+.legend-square.level-3 { 
+  background-color: #30a14e;
+}
+
+.legend-square.level-4 { 
+  background-color: #216e39;
+}
+
+.dark .legend-square.level-0 { 
+  background-color: #21262d;
+}
+
+.dark .legend-square.level-1 { 
+  background-color: #0e4429;
+}
+
+.dark .legend-square.level-2 { 
+  background-color: #006d32;
+}
+
+.dark .legend-square.level-3 { 
+  background-color: #26a641;
+}
+
+.dark .legend-square.level-4 { 
+  background-color: #39d353;
+}
+
+.heatmap-months {
+  position: relative;
+  height: 20px;
+  margin-bottom: 8px;
+  margin-left: 60px; /* Space for day labels */
+}
+
+.month-label {
+  position: absolute;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.heatmap-days-labels {
+  position: absolute;
+  left: 0;
+  top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  color: var(--text-muted);
+  width: 50px;
+  text-align: right;
+  padding-right: 8px;
+}
+
+.heatmap-days-labels span {
+  height: 12px;
+  line-height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.heatmap-grid-wrapper {
+  overflow-x: auto;
+  padding: 8px 0;
+  max-width: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+.heatmap-grid-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.heatmap-grid-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.heatmap-grid-wrapper::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 3px;
+}
+
+.heatmap-grid-wrapper::-webkit-scrollbar-thumb:hover {
+  background-color: var(--text-muted);
+}
+
+/* SVG Heatmap Styles */
+.leetcode-svg-heatmap {
+  width: 100%;
+  height: auto;
+  min-height: 140px;
+}
+
+.leetcode-svg-heatmap svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  min-width: 800px; /* Ensure minimum width for proper month label spacing */
+}
+
+.leetcode-svg-heatmap rect:hover {
+  stroke: rgba(255, 255, 255, 0.8);
+  stroke-width: 1;
+  filter: brightness(1.2);
+}
+
+.leetcode-svg-heatmap rect.selected {
+  stroke: var(--easy-color, #00b4aa) !important;
+  stroke-width: 2 !important;
+}
+
+.leetcode-svg-heatmap rect.today {
+  stroke: var(--text-primary) !important;
+  stroke-width: 1 !important;
+}
+
+.heatmap-grid {
+  display: flex;
+  gap: 2px;
+  min-width: max-content;
+}
+
+.heatmap-week {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.heatmap-day {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.heatmap-day.empty {
+  background: transparent;
+  cursor: default;
+}
+
+.heatmap-day:hover:not(.empty) {
+  transform: scale(1.1);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.heatmap-day.today {
+  border-color: var(--text-primary);
+  border-width: 2px;
+}
+
+.heatmap-day.selected {
+  border-color: var(--easy-color, #00b4aa);
+  border-width: 2px;
+  box-shadow: 0 0 8px rgba(0, 180, 170, 0.5);
+  transform: scale(1.15);
+}
+
+/* LeetCode exact colors */
+.heatmap-day.level-0 { 
+  background-color: #ebedf0;
+}
+
+.heatmap-day.level-1 { 
+  background-color: #9be9a8;
+}
+
+.heatmap-day.level-2 { 
+  background-color: #40c463;
+}
+
+.heatmap-day.level-3 { 
+  background-color: #30a14e;
+}
+
+.heatmap-day.level-4 { 
+  background-color: #216e39;
+}
+
+.dark .heatmap-day.level-0 { 
+  background-color: #21262d;
+}
+
+.dark .heatmap-day.level-1 { 
+  background-color: #0e4429;
+}
+
+.dark .heatmap-day.level-2 { 
+  background-color: #006d32;
+}
+
+.dark .heatmap-day.level-3 { 
+  background-color: #26a641;
+}
+
+.dark .heatmap-day.level-4 { 
+  background-color: #39d353;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .heatmap-days-labels {
+    width: 30px;
+    font-size: 10px;
+  }
+  
+  .heatmap-grid-wrapper {
+    margin-left: 40px;
+    max-width: calc(100vw - 80px);
+  }
+  
+  .heatmap-months {
+    margin-left: 40px;
+  }
+  
+  .heatmap-day {
+    width: 10px;
+    height: 10px;
+  }
+  
+  .month-label {
+    font-size: 10px;
+  }
+}
+
+/* Recent submissions */
+.submission-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.submission-item:hover {
+  background-color: var(--bg-tertiary);
+  padding-left: 20px;
+}
+
+.submission-item:last-child {
+  border-bottom: none;
+}
+
+.submission-title {
+  color: var(--text-primary);
+  font-weight: 500;
+  flex: 1;
+  text-decoration: none;
+}
+
+.submission-title:hover {
+  color: var(--easy-color);
+}
+
+.submission-time {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* Problem items */
+.problem-item:hover {
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+
+.problem-item:hover .font-medium {
+  color: var(--easy-color);
+}
+
+/* Dark mode toggle */
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-toggle:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .leetcode-calendar-wrapper {
+    gap: 2px;
+  }
+  
+  .leetcode-week-column {
+    gap: 2px;
+  }
+  
+  .leetcode-calendar-square {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .leet-card {
+    padding: 16px;
+  }
+  
+  .profile-content .profile-avatar {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .profile-content .profile-name {
+    font-size: 18px;
+  }
+  
+  .leetcode-heatmap-container {
+    overflow-x: auto;
+    padding: 10px 0;
+  }
+  
+  .leetcode-calendar-wrapper {
+    gap: 1px;
+    min-width: 500px;
+  }
+  
+  .leetcode-week-column {
+    gap: 1px;
+  }
+  
+  .leetcode-calendar-square {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .leetcode-month-label {
+    font-size: 10px;
+  }
+  
+  .submission-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .submission-item:hover {
+    padding-left: 16px;
+  }
+  
+  /* Stack statistics on mobile */
+  .flex.justify-between.items-center.mt-6 {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .flex.gap-8 {
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .leetcode-calendar-wrapper {
+    min-width: 350px;
+    gap: 1px;
+  }
+  
+  .leetcode-calendar-square {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .leetcode-month-label {
+    font-size: 9px;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* NEW: Enhanced Animations */
+@keyframes spin {
+  from { 
+    transform: rotate(0deg); 
+  }
+  to { 
+    transform: rotate(360deg); 
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.8; 
+    transform: scale(1.05);
+  }
+}
+
+@keyframes slideIn {
+  from { 
+    width: 0%; 
+    opacity: 0;
+  }
+  to { 
+    width: var(--target-width, 100%); 
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounceIn {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+/* NEW: Progress Circle Enhancements */
+.progress-circle-container {
+  position: relative;
+  display: inline-block;
+}
+
+.progress-circle-loading {
+  animation: spin 1s linear infinite;
+}
+
+.progress-circle-segment {
+  transition: stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
+              stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+              filter 0.3s ease;
+}
+
+.progress-circle-segment:hover {
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+}
+
+.progress-circle-pulse {
+  animation: pulse 2s infinite;
+}
+
+/* NEW: Enhanced Calendar Squares */
+.leetcode-calendar-square.selected {
+  border: 2px solid var(--easy-color) !important;
+  box-shadow: 0 0 8px rgba(0, 180, 170, 0.5);
+  transform: scale(1.2);
+  z-index: 10;
+  position: relative;
+}
+
+.leetcode-calendar-square {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.leetcode-calendar-square:hover {
+  transform: scale(1.1);
+  outline: 1px solid var(--text-muted);
+  outline-offset: 1px;
+  z-index: 5;
+  position: relative;
+}
+
+/* NEW: Language Statistics Chart */
+.language-bar {
+  height: 8px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  background: linear-gradient(90deg, transparent, currentColor, transparent);
+  background-size: 200px 100%;
+  animation: slideIn 1s ease-out forwards;
+}
+
+.language-bar:hover {
+  height: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* NEW: Problem Tags Cloud */
+.tag-cloud-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.tag-cloud-item:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background-color: var(--bg-secondary) !important;
+}
+
+/* NEW: Dark Mode Toggle Enhancement */
+.dark-mode-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 50;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+}
+
+.dark-mode-toggle:hover {
+  transform: scale(1.1) rotate(15deg);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* NEW: Share Modal */
+.share-modal-backdrop {
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+
+.share-modal-content {
+  animation: bounceIn 0.5s ease-out;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* NEW: Enhanced Card Hover Effects */
+.leet-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.leet-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px var(--shadow-color);
+}
+
+/* NEW: Category Block Enhancements */
+.category-block {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.category-block::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.category-block:hover::before {
+  left: 100%;
+}
+
+.category-block:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.category-block.selected {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* NEW: Submission Item Enhancements */
+.submission-item {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-left: 3px solid transparent;
+}
+
+.submission-item:hover {
+  transform: translateX(4px);
+  border-left-color: var(--easy-color);
+  background: linear-gradient(90deg, var(--bg-tertiary), var(--bg-primary));
+}
+
+/* NEW: Search Input Enhancements */
+.search-input {
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.search-input:focus {
+  transform: scale(1.02);
+  box-shadow: 0 0 0 3px rgba(0, 180, 170, 0.1);
+}
+
+/* NEW: Pagination Enhancements */
+.pagination-button {
+  transition: all 0.2s ease;
+}
+
+.pagination-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* NEW: Loading States */
+.loading-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.dark .loading-shimmer {
+  background: linear-gradient(90deg, #334155 25%, #475569 50%, #334155 75%);
+  background-size: 200% 100%;
+}
+
+/* NEW: Header Profile Enhancement */
+.profile-header {
+  background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(10px);
+}
+
+/* NEW: Tooltip Styles */
+.tooltip {
+  position: relative;
+}
+
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 100;
+}
+
+.tooltip:hover::after {
+  opacity: 1;
+}
+
+/* NEW: Mobile Responsive Enhancements */
+@media (max-width: 640px) {
+  .dark-mode-toggle {
+    top: 10px;
+    right: 10px;
+    padding: 6px;
+  }
+  
+  .category-block {
+    padding: 12px !important;
+  }
+  
+  .category-block .text-sm {
+    font-size: 12px;
+  }
+  
+  .category-block .text-lg {
+    font-size: 16px;
+  }
+  
+  .progress-circle-container svg {
+    width: 120px !important;
+    height: 120px !important;
+  }
+  
+  .share-modal-content {
+    margin: 16px;
+    max-width: calc(100vw - 32px);
+  }
+  
+  .language-bar {
+    height: 6px;
+  }
+  
+  .tag-cloud-item {
+    font-size: 12px !important;
+    padding: 4px 8px !important;
+  }
+}
+
+/* NEW: High DPI Display Support */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .leetcode-calendar-square {
+    border-radius: 1.5px;
+  }
+  
+  .progress-circle-segment {
+    stroke-width: 1.5;
+  }
+}
+
+/* NEW: Print Styles */
+@media print {
+  .dark-mode-toggle,
+  .share-modal-backdrop,
+  .category-block:hover::before {
+    display: none !important;
+  }
+  
+  .leet-card {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+  
+  .leetcode-calendar-square {
+    border: 1px solid #ccc;
+  }
+}
+
+/* NEW: Accessibility Improvements */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .progress-circle-loading {
+    animation: none;
+  }
+  
+  .category-block::before {
+    display: none;
+  }
+}
+
+/* NEW: Focus Indicators for Accessibility */
+.category-block:focus,
+.leetcode-calendar-square:focus,
+.submission-item:focus {
+  outline: 2px solid var(--easy-color);
+  outline-offset: 2px;
+}
+
+/* NEW: High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .leet-card {
+    border-width: 2px;
+  }
+  
+  .category-block {
+    border-width: 2px;
+  }
+  
+  .leetcode-calendar-square {
+    border: 1px solid var(--text-primary);
+  }
+}
