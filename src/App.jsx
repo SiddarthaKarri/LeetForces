@@ -15,12 +15,13 @@ import RecommendationsPage from "./components/RecommendationsPage";
 import ExportPage from "./components/ExportPage";
 import ThemesPage from "./components/ThemesPage";
 import useCodeforceStats from "./hooks/useCodeforceStats";
+import LandingPage from "./components/LandingPage";
 import { BASE_URL } from "./config";
 
 // Main Dashboard Component
 function Dashboard({ handle, submittedHandle, languageStats, tagStats, submissions, onProfileData, setShareModalOpen }) {
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6" style={{ marginTop: '80px' }}>
+    <div className="max-w-7xl mx-auto px-4 py-6 mt-[120px] md:mt-[100px]">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Left Column - Profile, Languages & Tags */}
         <div className="lg:col-span-1 space-y-6">
@@ -44,26 +45,15 @@ function Dashboard({ handle, submittedHandle, languageStats, tagStats, submissio
   );
 }
 
-// Redirect component for old /@username format
-function RedirectOldFormat() {
-  const location = useLocation();
-  const pathname = location.pathname;
-
-  if (pathname.startsWith('/@')) {
-    const username = pathname.slice(2); // Remove /@
-    return <Navigate to={`/user/${username}`} replace />;
-  }
-
-  return <Navigate to="/" replace />;
-}
-
 // Wrapper component to handle username parameter from URL
-function DashboardWithParams({ handle, setHandle, submittedHandle, setSubmittedHandle, languageStats, tagStats, submissions, onProfileData, setShareModalOpen }) {
-  const { username } = useParams();
+function DashboardWithParams({ handle, setHandle, submittedHandle, setSubmittedHandle, languageStats, tagStats, submissions, onProfileData, setShareModalOpen, usernameOverride }) {
+  const params = useParams();
+  // Use override if provided, otherwise get from params
+  const username = usernameOverride || params.username;
 
   useEffect(() => {
     if (username && username !== submittedHandle) {
-      console.log('Setting username from URL:', username); // Debug log
+      console.log('Setting username from URL:', username);
       setHandle(username);
       setSubmittedHandle(username);
     }
@@ -85,13 +75,42 @@ function DashboardWithParams({ handle, setHandle, submittedHandle, setSubmittedH
   );
 }
 
+// Smart Route Component to handle /@username, /username, etc.
+function SmartRedirect({ handle, setHandle, submittedHandle, setSubmittedHandle, languageStats, tagStats, submissions, onProfileData, setShareModalOpen }) {
+  const { slug } = useParams();
+
+  if (!slug) return <Navigate to="/" replace />;
+
+  let username = slug;
+  // If slug starts with @, remove it
+  if (slug.startsWith('@')) {
+    username = slug.slice(1);
+  }
+
+  // If it looks like a username, render dashboard
+  return (
+    <DashboardWithParams
+      handle={handle}
+      setHandle={setHandle}
+      submittedHandle={submittedHandle}
+      setSubmittedHandle={setSubmittedHandle}
+      languageStats={languageStats}
+      tagStats={tagStats}
+      submissions={submissions}
+      onProfileData={onProfileData}
+      setShareModalOpen={setShareModalOpen}
+      usernameOverride={username}
+    />
+  );
+}
+
 // Enhanced Navigation Component
 function Navigation({ handle, setHandle, onSearch, setShareModalOpen }) {
   const location = useLocation();
   const navigate = useNavigate();
 
   const navigationItems = [
-    { path: '/', icon: Home, label: 'Dashboard', color: 'text-blue-500' },
+    { path: handle ? `/user/${handle}` : '/', icon: Home, label: 'Dashboard', color: 'text-blue-500' },
     { path: '/compare', icon: GitCompare, label: 'Compare', color: 'text-purple-500' },
     { path: '/goals', icon: Target, label: 'Goals', color: 'text-green-500' },
     { path: '/recommendations', icon: BookOpen, label: 'Recommendations', color: 'text-orange-500' },
@@ -109,18 +128,27 @@ function Navigation({ handle, setHandle, onSearch, setShareModalOpen }) {
     }
   };
 
+  // Hide navigation and footer on Landing Page
+  const isLandingPage = location.pathname === '/' || location.pathname === BASE_URL || location.pathname === `${BASE_URL}/`;
+
+  if (isLandingPage) {
+    return null;
+  }
+
   return (
-    <header className="leet-card fixed top-0 left-0 right-0 z-40" style={{
+    <header className="leet-card fixed top-0 left-0 right-0 z-40 transition-all duration-300" style={{
       backgroundColor: 'var(--bg-primary)',
       borderRadius: '0',
       borderBottom: '1px solid var(--border-color)',
       margin: 0,
       backdropFilter: 'blur(12px)',
-      height: '60px'
     }}>
-      <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between h-full">
+      <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between h-[60px]">
         <div className="flex items-center gap-6">
-          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <Link
+            to="/"
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          >
             <div className="text-lg font-extrabold text-amber-400">CF</div>
             <div className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>LeetForces</div>
           </Link>
@@ -134,12 +162,12 @@ function Navigation({ handle, setHandle, onSearch, setShareModalOpen }) {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 ${isActive
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive
                     ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
                     : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400'
                     }`}
                 >
-                  <Icon size={14} className={isActive ? 'text-amber-600 dark:text-amber-400' : item.color} />
+                  <Icon size={16} className={isActive ? 'text-amber-600 dark:text-amber-400' : item.color} />
                   {item.label}
                 </Link>
               );
@@ -152,16 +180,17 @@ function Navigation({ handle, setHandle, onSearch, setShareModalOpen }) {
             <input
               value={handle}
               onChange={(e) => setHandle(e.target.value)}
-              className="px-2 py-1 rounded-md outline-none w-44 border text-sm transition-all focus:ring-2 focus:ring-amber-400/50"
+              className="px-2 py-1 rounded-md outline-none w-32 md:w-44 border text-sm transition-all focus:ring-2 focus:ring-amber-400/50"
               style={{
                 backgroundColor: 'var(--bg-tertiary)',
                 borderColor: 'var(--border-color)',
                 color: 'var(--text-primary)'
               }}
-              placeholder="Codeforces handle"
+              placeholder="Handle"
             />
             <button className="px-2 py-1 bg-amber-400 rounded-md font-medium text-black hover:bg-amber-500 transition-colors text-sm">
-              Search
+              <span className="hidden md:inline">Search</span>
+              <span className="md:hidden">Go</span>
             </button>
           </form>
           <button
@@ -170,15 +199,15 @@ function Navigation({ handle, setHandle, onSearch, setShareModalOpen }) {
             title="Share profile"
           >
             <QrCode size={14} />
-            Share
+            <span className="hidden md:inline">Share</span>
           </button>
         </div>
       </div>
 
       {/* Mobile Navigation */}
       <div className="md:hidden border-t border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 py-1">
-          <div className="flex items-center justify-between overflow-x-auto">
+        <div className="max-w-7xl mx-auto px-4 py-2">
+          <div className="flex items-center justify-between overflow-x-auto gap-4 no-scrollbar">
             {navigationItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path;
@@ -186,13 +215,13 @@ function Navigation({ handle, setHandle, onSearch, setShareModalOpen }) {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg transition-all duration-200 ${isActive
-                    ? 'text-amber-600 dark:text-amber-400'
+                  className={`flex flex-col items-center gap-1 min-w-[60px] px-2 py-1 rounded-lg transition-all duration-200 ${isActive
+                    ? 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20'
                     : 'text-gray-500 dark:text-gray-400'
                     }`}
                 >
-                  <Icon size={14} />
-                  <span className="text-xs font-medium">{item.label}</span>
+                  <Icon size={16} />
+                  <span className="text-[10px] font-medium whitespace-nowrap">{item.label}</span>
                 </Link>
               );
             })}
@@ -203,18 +232,46 @@ function Navigation({ handle, setHandle, onSearch, setShareModalOpen }) {
   );
 }
 
+// Footer Component with conditional rendering
+function Footer() {
+  const location = useLocation();
+  const isLandingPage = location.pathname === '/' || location.pathname === BASE_URL || location.pathname === `${BASE_URL}/`;
+
+  if (isLandingPage) return null;
+
+  return (
+    <footer className="max-w-6xl mx-auto px-4 pb-8 text-sm text-center" style={{ color: 'var(--text-muted)' }}>
+      <div className="mb-2">
+        Built with Codeforces public API · UI inspired by LeetCode
+      </div>
+      <div className="flex justify-center items-center gap-4">
+        <span>By <a href="https://github.com/SiddarthaKarri" target="_blank" rel="noreferrer" className="hover:text-amber-400 transition-colors">Siddartha Karri</a></span>
+        <span>•</span>
+        <a href="https://siddartha-karri.vercel.app/" target="_blank" rel="noreferrer" className="hover:text-amber-400 transition-colors">Portfolio</a>
+        <span>•</span>
+        <a href="https://www.linkedin.com/in/siddarthakarri/" target="_blank" rel="noreferrer" className="hover:text-amber-400 transition-colors">LinkedIn</a>
+        <span>•</span>
+        <a href="https://github.com/SiddarthaKarri" target="_blank" rel="noreferrer" className="hover:text-amber-400 transition-colors">GitHub</a>
+      </div>
+    </footer>
+  );
+}
+
 export default function App() {
-  // theme
-  const [dark, setDark] = useState(localStorage.getItem('theme') === 'dark');
+  // theme - default to dark if not set
+  const [dark, setDark] = useState(() => {
+    const savedTheme = localStorage.getItem('leetforces-theme');
+    return savedTheme !== 'light'; // Default to dark (true) if 'dark' or null
+  });
 
   useEffect(() => {
     const html = document.documentElement;
     if (dark) {
       html.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
+      localStorage.setItem('leetforces-theme', 'dark');
     } else {
       html.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
+      localStorage.setItem('leetforces-theme', 'light');
     }
   }, [dark]);
 
@@ -271,7 +328,9 @@ export default function App() {
         />
 
         <Routes>
-          <Route path="/@:username" element={<RedirectOldFormat />} />
+          <Route path="/" element={<LandingPage />} />
+
+          {/* Standard user route */}
           <Route path="/user/:username" element={
             <DashboardWithParams
               handle={handle}
@@ -285,10 +344,21 @@ export default function App() {
               setShareModalOpen={setShareModalOpen}
             />
           } />
-          <Route path="/" element={
-            <Dashboard
+
+          {/* Static Routes */}
+          <Route path="/compare" element={<CompareUsersPage />} />
+          <Route path="/goals" element={<GoalsTrackerPage handle={submittedHandle} />} />
+          <Route path="/recommendations" element={<RecommendationsPage handle={submittedHandle} />} />
+          <Route path="/export" element={<ExportPage handle={submittedHandle} profileData={profileData} />} />
+          <Route path="/themes" element={<ThemesPage darkMode={dark} setDarkMode={setDark} />} />
+
+          {/* Catch-all for /@username or just /username */}
+          <Route path="/:slug" element={
+            <SmartRedirect
               handle={handle}
+              setHandle={setHandle}
               submittedHandle={submittedHandle}
+              setSubmittedHandle={setSubmittedHandle}
               languageStats={languageStats}
               tagStats={tagStats}
               submissions={submissions}
@@ -296,30 +366,12 @@ export default function App() {
               setShareModalOpen={setShareModalOpen}
             />
           } />
-          <Route path="/compare" element={<CompareUsersPage />} />
-          <Route path="/goals" element={<GoalsTrackerPage handle={submittedHandle} />} />
-          <Route path="/recommendations" element={<RecommendationsPage handle={submittedHandle} />} />
-          <Route path="/export" element={<ExportPage handle={submittedHandle} profileData={profileData} />} />
-          <Route path="/themes" element={<ThemesPage darkMode={dark} setDarkMode={setDark} />} />
+
+          {/* Global catch-all for other paths */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
 
-        <footer className="max-w-6xl mx-auto px-4 pb-8 text-sm text-center" style={{ color: 'var(--text-muted)' }}>
-          <div className="mb-2">
-            Built with Codeforces public API · UI inspired by LeetCode
-          </div>
-          <div className="flex justify-center items-center gap-4">
-            <span>By <a href="https://github.com/SiddarthaKarri" target="_blank" rel="noreferrer" className="hover:text-amber-400 transition-colors">Siddartha Karri</a></span>
-            <span>•</span>
-            <a href="https://siddartha-karri.vercel.app/" target="_blank" rel="noreferrer" className="hover:text-amber-400 transition-colors">Portfolio</a>
-            <span>•</span>
-            <a href="https://www.linkedin.com/in/siddarthakarri/" target="_blank" rel="noreferrer" className="hover:text-amber-400 transition-colors">LinkedIn</a>
-            <span>•</span>
-            <a href="https://github.com/SiddarthaKarri" target="_blank" rel="noreferrer" className="hover:text-amber-400 transition-colors">GitHub</a>
-          </div>
-        </footer>
-
-
+        <Footer />
 
         {/* Share Modal */}
         <ShareModal

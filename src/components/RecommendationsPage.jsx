@@ -72,11 +72,11 @@ export default function RecommendationsPage() {
 
         if (submission.verdict === 'OK') {
           solvedProblems.add(problemKey);
-          
+
           if (submission.problem.rating) {
             totalRating += submission.problem.rating;
             solvedCount++;
-            
+
             const rating = submission.problem.rating;
             const range = Math.floor(rating / 200) * 200;
             difficultyStats[range] = (difficultyStats[range] || 0) + 1;
@@ -89,7 +89,7 @@ export default function RecommendationsPage() {
       });
 
       const averageRating = solvedCount > 0 ? totalRating / solvedCount : 1200;
-      
+
       // Find weak areas (tags with low solve count)
       const totalSolved = Object.values(tagStats).reduce((a, b) => a + b, 0);
       const weakTags = popularTags.filter(tag => {
@@ -101,11 +101,11 @@ export default function RecommendationsPage() {
       let recommendedProblems = allProblems
         .filter(problem => {
           const problemKey = `${problem.contestId}-${problem.index}`;
-          
+
           // Apply solved/unsolved filter
           if (filters.solved === 'solved' && !solvedProblems.has(problemKey)) return false;
           if (filters.solved === 'unsolved' && solvedProblems.has(problemKey)) return false;
-          
+
           // Apply difficulty filter
           if (filters.difficulty !== 'all') {
             const range = difficultyRanges.find(r => r.value === filters.difficulty);
@@ -113,40 +113,40 @@ export default function RecommendationsPage() {
               return false;
             }
           }
-          
+
           // Apply tag filter
           if (filters.tags.length > 0) {
             const hasAnyTag = filters.tags.some(tag => problem.tags?.includes(tag));
             if (!hasAnyTag) return false;
           }
-          
+
           return problem.rating && problem.tags;
         })
         .map(problem => {
           const problemKey = `${problem.contestId}-${problem.index}`;
           let score = 0;
-          
+
           // Prefer problems in weak areas
           const hasWeakTag = problem.tags.some(tag => weakTags.includes(tag));
           if (hasWeakTag) score += 50;
-          
+
           // Prefer problems slightly above user's average rating
           const ratingDiff = problem.rating - averageRating;
           if (ratingDiff >= 0 && ratingDiff <= 400) {
             score += 30 - Math.abs(ratingDiff - 200) / 10;
           }
-          
+
           // Boost popular problems (higher solve count indicates quality)
           if (problem.solvedCount > 1000) score += 20;
           if (problem.solvedCount > 5000) score += 10;
-          
+
           // Penalize already attempted problems
           if (attemptedProblems.has(problemKey)) score -= 20;
-          
+
           return {
             ...problem,
             score,
-            recommendationReason: hasWeakTag ? 
+            recommendationReason: hasWeakTag ?
               `Improve in: ${problem.tags.filter(tag => weakTags.includes(tag)).join(', ')}` :
               'Good for skill progression'
           };
@@ -175,14 +175,14 @@ export default function RecommendationsPage() {
   const handleTagToggle = (tag) => {
     setFilters(prev => ({
       ...prev,
-      tags: prev.tags.includes(tag) 
+      tags: prev.tags.includes(tag)
         ? prev.tags.filter(t => t !== tag)
         : [...prev.tags, tag]
     }));
   };
 
   return (
-    <div className="min-h-screen pt-20 pb-8" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+    <div className="min-h-screen pt-[120px] md:pt-28 pb-8" style={{ backgroundColor: 'var(--bg-secondary)' }}>
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-8">
@@ -226,7 +226,7 @@ export default function RecommendationsPage() {
               {loading ? 'Analyzing...' : 'Get Recommendations'}
             </button>
           </div>
-          
+
           {error && (
             <div className="mt-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg">
               <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
@@ -243,7 +243,7 @@ export default function RecommendationsPage() {
                 Filters
               </h3>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Difficulty Filter */}
               <div>
@@ -252,7 +252,7 @@ export default function RecommendationsPage() {
                 </label>
                 <select
                   value={filters.difficulty}
-                  onChange={(e) => setFilters(prev => ({...prev, difficulty: e.target.value}))}
+                  onChange={(e) => setFilters(prev => ({ ...prev, difficulty: e.target.value }))}
                   className="w-full px-3 py-2 rounded border"
                   style={{
                     backgroundColor: 'var(--bg-tertiary)',
@@ -275,7 +275,7 @@ export default function RecommendationsPage() {
                 </label>
                 <select
                   value={filters.solved}
-                  onChange={(e) => setFilters(prev => ({...prev, solved: e.target.value}))}
+                  onChange={(e) => setFilters(prev => ({ ...prev, solved: e.target.value }))}
                   className="w-full px-3 py-2 rounded border"
                   style={{
                     backgroundColor: 'var(--bg-tertiary)',
@@ -310,11 +310,10 @@ export default function RecommendationsPage() {
                   <button
                     key={tag}
                     onClick={() => handleTagToggle(tag)}
-                    className={`px-3 py-1 rounded-full text-sm transition-colors ${
-                      filters.tags.includes(tag)
-                        ? 'bg-blue-500 text-white'
-                        : 'border border-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                    }`}
+                    className={`px-3 py-1 rounded-full text-sm transition-colors ${filters.tags.includes(tag)
+                      ? 'bg-blue-500 text-white'
+                      : 'border border-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      }`}
                     style={{
                       color: filters.tags.includes(tag) ? 'white' : 'var(--text-secondary)',
                       borderColor: filters.tags.includes(tag) ? 'transparent' : 'var(--border-color)'
@@ -372,7 +371,7 @@ export default function RecommendationsPage() {
                         {problem.contestId}{problem.index}. {problem.name}
                       </h4>
                     </div>
-                    
+
                     <div className="flex items-center gap-4 mb-3">
                       <div className="flex items-center gap-1">
                         <Star className={getDifficultyColor(problem.rating)} size={16} />

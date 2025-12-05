@@ -75,13 +75,13 @@ export default function GoalsTrackerPage() {
   const handleUpdateGoal = () => {
     if (!newGoal.title || !newGoal.targetValue || !newGoal.deadline) return;
 
-    const updatedGoals = goals.map(goal => 
-      goal.id === editingGoal.id 
+    const updatedGoals = goals.map(goal =>
+      goal.id === editingGoal.id
         ? {
-            ...goal,
-            ...newGoal,
-            targetValue: Number(newGoal.targetValue)
-          }
+          ...goal,
+          ...newGoal,
+          targetValue: Number(newGoal.targetValue)
+        }
         : goal
     );
 
@@ -109,9 +109,9 @@ export default function GoalsTrackerPage() {
           date: new Date().toISOString(),
           value: newValue
         }];
-        
-        const status = newValue >= goal.targetValue ? 'completed' : 
-                      new Date() > new Date(goal.deadline) ? 'overdue' : 'active';
+
+        const status = newValue >= goal.targetValue ? 'completed' :
+          new Date() > new Date(goal.deadline) ? 'overdue' : 'active';
 
         return {
           ...goal,
@@ -160,7 +160,7 @@ export default function GoalsTrackerPage() {
   };
 
   return (
-    <div className="min-h-screen pt-20 pb-8" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+    <div className="min-h-screen pt-[120px] md:pt-28 pb-8" style={{ backgroundColor: 'var(--bg-secondary)' }}>
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-8">
@@ -355,24 +355,24 @@ export default function GoalsTrackerPage() {
                           <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
                           <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={10} />
                           <YAxis stroke="var(--text-muted)" fontSize={10} />
-                          <Tooltip 
+                          <Tooltip
                             contentStyle={{
                               backgroundColor: 'var(--bg-primary)',
                               border: '1px solid var(--border-color)',
                               borderRadius: '8px'
                             }}
                           />
-                          <Line 
-                            type="monotone" 
-                            dataKey="value" 
-                            stroke="#3b82f6" 
+                          <Line
+                            type="monotone"
+                            dataKey="value"
+                            stroke="#3b82f6"
                             strokeWidth={2}
                             dot={{ fill: '#3b82f6' }}
                           />
-                          <Line 
-                            type="monotone" 
-                            dataKey="target" 
-                            stroke="#ef4444" 
+                          <Line
+                            type="monotone"
+                            dataKey="target"
+                            stroke="#ef4444"
                             strokeDasharray="5 5"
                             strokeWidth={1}
                           />
@@ -393,7 +393,7 @@ export default function GoalsTrackerPage() {
               <h3 className="text-xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
                 {editingGoal ? 'Edit Goal' : 'Add New Goal'}
               </h3>
-              
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
@@ -402,7 +402,7 @@ export default function GoalsTrackerPage() {
                   <input
                     type="text"
                     value={newGoal.title}
-                    onChange={(e) => setNewGoal({...newGoal, title: e.target.value})}
+                    onChange={(e) => setNewGoal({ ...newGoal, title: e.target.value })}
                     placeholder="e.g., Reach 1600 rating"
                     className="w-full px-3 py-2 rounded border"
                     style={{
@@ -419,7 +419,7 @@ export default function GoalsTrackerPage() {
                   </label>
                   <select
                     value={newGoal.type}
-                    onChange={(e) => setNewGoal({...newGoal, type: e.target.value})}
+                    onChange={(e) => setNewGoal({ ...newGoal, type: e.target.value })}
                     className="w-full px-3 py-2 rounded border"
                     style={{
                       backgroundColor: 'var(--bg-tertiary)',
@@ -442,7 +442,7 @@ export default function GoalsTrackerPage() {
                   <input
                     type="number"
                     value={newGoal.targetValue}
-                    onChange={(e) => setNewGoal({...newGoal, targetValue: e.target.value})}
+                    onChange={(e) => setNewGoal({ ...newGoal, targetValue: e.target.value })}
                     placeholder="e.g., 1600"
                     className="w-full px-3 py-2 rounded border"
                     style={{
@@ -460,7 +460,7 @@ export default function GoalsTrackerPage() {
                   <input
                     type="number"
                     value={newGoal.currentValue}
-                    onChange={(e) => setNewGoal({...newGoal, currentValue: Number(e.target.value)})}
+                    onChange={(e) => setNewGoal({ ...newGoal, currentValue: Number(e.target.value) })}
                     placeholder="e.g., 1200"
                     className="w-full px-3 py-2 rounded border"
                     style={{
@@ -478,7 +478,7 @@ export default function GoalsTrackerPage() {
                   <input
                     type="date"
                     value={newGoal.deadline}
-                    onChange={(e) => setNewGoal({...newGoal, deadline: e.target.value})}
+                    onChange={(e) => setNewGoal({ ...newGoal, deadline: e.target.value })}
                     className="w-full px-3 py-2 rounded border"
                     style={{
                       backgroundColor: 'var(--bg-tertiary)',
@@ -494,7 +494,7 @@ export default function GoalsTrackerPage() {
                   </label>
                   <textarea
                     value={newGoal.description}
-                    onChange={(e) => setNewGoal({...newGoal, description: e.target.value})}
+                    onChange={(e) => setNewGoal({ ...newGoal, description: e.target.value })}
                     placeholder="Additional details about your goal..."
                     rows={3}
                     className="w-full px-3 py-2 rounded border"

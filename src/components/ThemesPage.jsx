@@ -129,12 +129,12 @@ export default function ThemesPage() {
   useEffect(() => {
     const savedTheme = localStorage.getItem('selected-theme') || 'system';
     const savedCustomThemes = localStorage.getItem('custom-themes');
-    
+
     setCurrentTheme(savedTheme);
     if (savedCustomThemes) {
       setCustomThemes(JSON.parse(savedCustomThemes));
     }
-    
+
     applyTheme(savedTheme);
   }, []);
 
@@ -144,15 +144,15 @@ export default function ThemesPage() {
   }, [customThemes]);
 
   const applyTheme = (themeId) => {
-    const theme = predefinedThemes.find(t => t.id === themeId) || 
-                  customThemes.find(t => t.id === themeId);
-    
+    const theme = predefinedThemes.find(t => t.id === themeId) ||
+      customThemes.find(t => t.id === themeId);
+
     if (!theme || themeId === 'system') {
       // Remove custom CSS variables to fall back to system
       Object.keys(newTheme.colors).forEach(key => {
         document.documentElement.style.removeProperty(`--${key}`);
       });
-      
+
       if (themeId === 'system') {
         // Apply system preference
         if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -217,12 +217,12 @@ export default function ThemesPage() {
     const dataStr = JSON.stringify(theme, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(dataBlob);
-    
+
     const link = document.createElement('a');
     link.href = url;
     link.download = `${theme.name.replace(/\s+/g, '_').toLowerCase()}_theme.json`;
     link.click();
-    
+
     URL.revokeObjectURL(url);
   };
 
@@ -237,14 +237,14 @@ export default function ThemesPage() {
         theme.id = `custom-${Date.now()}`;
         theme.custom = true;
         theme.icon = Palette;
-        
+
         setCustomThemes([...customThemes, theme]);
       } catch (err) {
         alert('Invalid theme file');
       }
     };
     reader.readAsText(file);
-    
+
     // Reset input
     event.target.value = '';
   };
@@ -256,7 +256,7 @@ export default function ThemesPage() {
   const allThemes = [...predefinedThemes, ...customThemes];
 
   return (
-    <div className="min-h-screen pt-20 pb-8" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+    <div className="min-h-screen pt-[120px] md:pt-28 pb-8" style={{ backgroundColor: 'var(--bg-secondary)' }}>
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-8">
@@ -280,7 +280,7 @@ export default function ThemesPage() {
             <Palette size={20} />
             Create Custom Theme
           </button>
-          
+
           <label className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium flex items-center gap-2 cursor-pointer">
             <Upload size={20} />
             Import Theme
@@ -313,13 +313,12 @@ export default function ThemesPage() {
             {predefinedThemes.map((theme) => {
               const IconComponent = theme.icon;
               const isActive = currentTheme === theme.id;
-              
+
               return (
                 <div
                   key={theme.id}
-                  className={`leet-card cursor-pointer transition-all hover:shadow-lg ${
-                    isActive ? 'ring-2 ring-blue-500' : ''
-                  }`}
+                  className={`leet-card cursor-pointer transition-all hover:shadow-lg ${isActive ? 'ring-2 ring-blue-500' : ''
+                    }`}
                   onClick={() => handleThemeSelect(theme.id)}
                 >
                   <div className="flex items-center gap-3 mb-3">
@@ -328,11 +327,11 @@ export default function ThemesPage() {
                       {theme.name}
                     </h3>
                   </div>
-                  
+
                   <p className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>
                     {theme.description}
                   </p>
-                  
+
                   {theme.id !== 'system' && (
                     <div className="flex gap-2 mb-4">
                       {Object.values(theme.colors).slice(0, 6).map((color, index) => (
@@ -344,7 +343,7 @@ export default function ThemesPage() {
                       ))}
                     </div>
                   )}
-                  
+
                   <div className="flex gap-2">
                     <button
                       onClick={(e) => {
@@ -379,13 +378,12 @@ export default function ThemesPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {customThemes.map((theme) => {
                 const isActive = currentTheme === theme.id;
-                
+
                 return (
                   <div
                     key={theme.id}
-                    className={`leet-card cursor-pointer transition-all hover:shadow-lg ${
-                      isActive ? 'ring-2 ring-blue-500' : ''
-                    }`}
+                    className={`leet-card cursor-pointer transition-all hover:shadow-lg ${isActive ? 'ring-2 ring-blue-500' : ''
+                      }`}
                     onClick={() => handleThemeSelect(theme.id)}
                   >
                     <div className="flex items-center gap-3 mb-3">
@@ -403,11 +401,11 @@ export default function ThemesPage() {
                         <Trash2 size={14} className="text-red-500" />
                       </button>
                     </div>
-                    
+
                     <p className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>
                       Custom theme
                     </p>
-                    
+
                     <div className="flex gap-2 mb-4">
                       {Object.values(theme.colors).slice(0, 6).map((color, index) => (
                         <div
@@ -417,7 +415,7 @@ export default function ThemesPage() {
                         />
                       ))}
                     </div>
-                    
+
                     <div className="flex gap-2">
                       <button
                         onClick={(e) => {
@@ -450,7 +448,7 @@ export default function ThemesPage() {
               <h3 className="text-xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
                 Create Custom Theme
               </h3>
-              
+
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
@@ -459,7 +457,7 @@ export default function ThemesPage() {
                   <input
                     type="text"
                     value={newTheme.name}
-                    onChange={(e) => setNewTheme({...newTheme, name: e.target.value})}
+                    onChange={(e) => setNewTheme({ ...newTheme, name: e.target.value })}
                     placeholder="e.g., My Awesome Theme"
                     className="w-full px-3 py-2 rounded border"
                     style={{

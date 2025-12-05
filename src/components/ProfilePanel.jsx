@@ -56,11 +56,11 @@ export default function ProfilePanel({ handle, onProfileData, setShareModalOpen 
       {profile && !loading && (
         <div className="leet-card">
           <div className="profile-content">
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
               <img
                 src={profile.titlePhoto || `https:${profile.avatar || ''}` || `https://codeforces.org/avatars/${profile.handle}.jpg`}
                 alt="avatar"
-                className="profile-avatar"
+                className="profile-avatar mx-auto sm:mx-0"
               />
               <div>
                 <div className="profile-name">{profile.firstName ? `${profile.firstName} ${profile.lastName || ''}` : profile.handle}</div>
@@ -71,7 +71,7 @@ export default function ProfilePanel({ handle, onProfileData, setShareModalOpen 
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-3 text-sm">
+            <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
               <Stat label="Rating" value={profile.rating ?? '—'} />
               <Stat label="Max Rating" value={profile.maxRating ?? '—'} />
               <Stat label="Contribution" value={profile.contribution ?? '—'} />

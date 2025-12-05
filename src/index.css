@@ -11,20 +11,21 @@
   --text-muted: #64748b;
   --border-color: #e2e8f0;
   --shadow-color: rgba(0, 0, 0, 0.1);
-  
+
   /* LeetCode specific colors */
   --easy-color: #00b8a3;
   --medium-color: #ffa116;
   --hard-color: #ff375f;
   --accepted-color: #00b8a3;
   --progress-bg: #f1f5f9;
-  
+
   /* LeetCode heatmap green colors */
   --green-20: #9be9a8;
   --green-40: #40c463;
   --green-60: #30a14e;
   --green-80: #216e39;
-  --fill-tertiary: #ebedf0;  /* Light gray for empty days in light mode */
+  --fill-tertiary: #ebedf0;
+  /* Light gray for empty days in light mode */
 }
 
 .dark {
@@ -38,13 +39,14 @@
   --border-color: #334155;
   --shadow-color: rgba(0, 0, 0, 0.3);
   --progress-bg: #334155;
-  
+
   /* Dark mode LeetCode heatmap colors */
   --green-20: #0e4429;
   --green-40: #006d32;
   --green-60: #26a641;
   --green-80: #39d353;
-  --fill-tertiary: #21262d;  /* Dark gray for empty days in dark mode */
+  --fill-tertiary: #21262d;
+  /* Dark gray for empty days in dark mode */
 }
 
 /* Global styles */
@@ -59,6 +61,15 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Enforce pointer cursor on all buttons */
+button,
+[type="button"],
+[type="submit"],
+[type="reset"],
+[role="button"] {
+  cursor: pointer !important;
 }
 
 /* Card styles */
@@ -249,6 +260,7 @@ body {
     opacity: 0;
     transform: translateX(-50%) translateY(-100%) scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: translateX(-50%) translateY(-100%) scale(1);
@@ -304,43 +316,43 @@ body {
   cursor: help;
 }
 
-.legend-square.level-0 { 
+.legend-square.level-0 {
   background-color: #ebedf0;
 }
 
-.legend-square.level-1 { 
+.legend-square.level-1 {
   background-color: #9be9a8;
 }
 
-.legend-square.level-2 { 
+.legend-square.level-2 {
   background-color: #40c463;
 }
 
-.legend-square.level-3 { 
+.legend-square.level-3 {
   background-color: #30a14e;
 }
 
-.legend-square.level-4 { 
+.legend-square.level-4 {
   background-color: #216e39;
 }
 
-.dark .legend-square.level-0 { 
+.dark .legend-square.level-0 {
   background-color: #21262d;
 }
 
-.dark .legend-square.level-1 { 
+.dark .legend-square.level-1 {
   background-color: #0e4429;
 }
 
-.dark .legend-square.level-2 { 
+.dark .legend-square.level-2 {
   background-color: #006d32;
 }
 
-.dark .legend-square.level-3 { 
+.dark .legend-square.level-3 {
   background-color: #26a641;
 }
 
-.dark .legend-square.level-4 { 
+.dark .legend-square.level-4 {
   background-color: #39d353;
 }
 
@@ -348,7 +360,8 @@ body {
   position: relative;
   height: 20px;
   margin-bottom: 8px;
-  margin-left: 60px; /* Space for day labels */
+  margin-left: 60px;
+  /* Space for day labels */
 }
 
 .month-label {
@@ -416,7 +429,8 @@ body {
   width: 100%;
   height: auto;
   display: block;
-  min-width: 800px; /* Ensure minimum width for proper month label spacing */
+  min-width: 800px;
+  /* Ensure minimum width for proper month label spacing */
 }
 
 .leetcode-svg-heatmap rect:hover {
@@ -480,43 +494,43 @@ body {
 }
 
 /* LeetCode exact colors */
-.heatmap-day.level-0 { 
+.heatmap-day.level-0 {
   background-color: #ebedf0;
 }
 
-.heatmap-day.level-1 { 
+.heatmap-day.level-1 {
   background-color: #9be9a8;
 }
 
-.heatmap-day.level-2 { 
+.heatmap-day.level-2 {
   background-color: #40c463;
 }
 
-.heatmap-day.level-3 { 
+.heatmap-day.level-3 {
   background-color: #30a14e;
 }
 
-.heatmap-day.level-4 { 
+.heatmap-day.level-4 {
   background-color: #216e39;
 }
 
-.dark .heatmap-day.level-0 { 
+.dark .heatmap-day.level-0 {
   background-color: #21262d;
 }
 
-.dark .heatmap-day.level-1 { 
+.dark .heatmap-day.level-1 {
   background-color: #0e4429;
 }
 
-.dark .heatmap-day.level-2 { 
+.dark .heatmap-day.level-2 {
   background-color: #006d32;
 }
 
-.dark .heatmap-day.level-3 { 
+.dark .heatmap-day.level-3 {
   background-color: #26a641;
 }
 
-.dark .heatmap-day.level-4 { 
+.dark .heatmap-day.level-4 {
   background-color: #39d353;
 }
 
@@ -526,21 +540,21 @@ body {
     width: 30px;
     font-size: 10px;
   }
-  
+
   .heatmap-grid-wrapper {
     margin-left: 40px;
     max-width: calc(100vw - 80px);
   }
-  
+
   .heatmap-months {
     margin-left: 40px;
   }
-  
+
   .heatmap-day {
     width: 10px;
     height: 10px;
   }
-  
+
   .month-label {
     font-size: 10px;
   }
@@ -613,11 +627,11 @@ body {
   .leetcode-calendar-wrapper {
     gap: 2px;
   }
-  
+
   .leetcode-week-column {
     gap: 2px;
   }
-  
+
   .leetcode-calendar-square {
     width: 10px;
     height: 10px;
@@ -628,55 +642,55 @@ body {
   .leet-card {
     padding: 16px;
   }
-  
+
   .profile-content .profile-avatar {
     width: 60px;
     height: 60px;
   }
-  
+
   .profile-content .profile-name {
     font-size: 18px;
   }
-  
+
   .leetcode-heatmap-container {
     overflow-x: auto;
     padding: 10px 0;
   }
-  
+
   .leetcode-calendar-wrapper {
     gap: 1px;
     min-width: 500px;
   }
-  
+
   .leetcode-week-column {
     gap: 1px;
   }
-  
+
   .leetcode-calendar-square {
     width: 8px;
     height: 8px;
   }
-  
+
   .leetcode-month-label {
     font-size: 10px;
   }
-  
+
   .submission-item {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
-  
+
   .submission-item:hover {
     padding-left: 16px;
   }
-  
+
   /* Stack statistics on mobile */
   .flex.justify-between.items-center.mt-6 {
     flex-direction: column;
     gap: 20px;
   }
-  
+
   .flex.gap-8 {
     flex-wrap: wrap;
     gap: 16px;
@@ -689,12 +703,12 @@ body {
     min-width: 350px;
     gap: 1px;
   }
-  
+
   .leetcode-calendar-square {
     width: 6px;
     height: 6px;
   }
-  
+
   .leetcode-month-label {
     font-size: 9px;
   }
@@ -720,32 +734,37 @@ body {
 
 /* NEW: Enhanced Animations */
 @keyframes spin {
-  from { 
-    transform: rotate(0deg); 
+  from {
+    transform: rotate(0deg);
   }
-  to { 
-    transform: rotate(360deg); 
+
+  to {
+    transform: rotate(360deg);
   }
 }
 
 @keyframes pulse {
-  0%, 100% { 
-    opacity: 1; 
+
+  0%,
+  100% {
+    opacity: 1;
     transform: scale(1);
   }
-  50% { 
-    opacity: 0.8; 
+
+  50% {
+    opacity: 0.8;
     transform: scale(1.05);
   }
 }
 
 @keyframes slideIn {
-  from { 
-    width: 0%; 
+  from {
+    width: 0%;
     opacity: 0;
   }
-  to { 
-    width: var(--target-width, 100%); 
+
+  to {
+    width: var(--target-width, 100%);
     opacity: 1;
   }
 }
@@ -755,10 +774,15 @@ body {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
 }
 
 @keyframes bounceIn {
@@ -766,10 +790,12 @@ body {
     opacity: 0;
     transform: scale(0.3);
   }
+
   50% {
     opacity: 1;
     transform: scale(1.05);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -780,6 +806,7 @@ body {
   0% {
     background-position: -200px 0;
   }
+
   100% {
     background-position: calc(200px + 100%) 0;
   }
@@ -796,9 +823,9 @@ body {
 }
 
 .progress-circle-segment {
-  transition: stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
-              stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1),
-              filter 0.3s ease;
+  transition: stroke-dasharray 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+    stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+    filter 0.3s ease;
 }
 
 .progress-circle-segment:hover {
@@ -1021,33 +1048,33 @@ body {
     right: 10px;
     padding: 6px;
   }
-  
+
   .category-block {
     padding: 12px !important;
   }
-  
+
   .category-block .text-sm {
     font-size: 12px;
   }
-  
+
   .category-block .text-lg {
     font-size: 16px;
   }
-  
+
   .progress-circle-container svg {
     width: 120px !important;
     height: 120px !important;
   }
-  
+
   .share-modal-content {
     margin: 16px;
     max-width: calc(100vw - 32px);
   }
-  
+
   .language-bar {
     height: 6px;
   }
-  
+
   .tag-cloud-item {
     font-size: 12px !important;
     padding: 4px 8px !important;
@@ -1055,11 +1082,12 @@ body {
 }
 
 /* NEW: High DPI Display Support */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
   .leetcode-calendar-square {
     border-radius: 1.5px;
   }
-  
+
   .progress-circle-segment {
     stroke-width: 1.5;
   }
@@ -1067,17 +1095,18 @@ body {
 
 /* NEW: Print Styles */
 @media print {
+
   .dark-mode-toggle,
   .share-modal-backdrop,
   .category-block:hover::before {
     display: none !important;
   }
-  
+
   .leet-card {
     box-shadow: none;
     border: 1px solid #ccc;
   }
-  
+
   .leetcode-calendar-square {
     border: 1px solid #ccc;
   }
@@ -1090,11 +1119,11 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  
+
   .progress-circle-loading {
     animation: none;
   }
-  
+
   .category-block::before {
     display: none;
   }
@@ -1113,11 +1142,11 @@ body {
   .leet-card {
     border-width: 2px;
   }
-  
+
   .category-block {
     border-width: 2px;
   }
-  
+
   .leetcode-calendar-square {
     border: 1px solid var(--text-primary);
   }

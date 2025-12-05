@@ -30,7 +30,7 @@ export default function CompareUsersPage() {
       // Calculate statistics
       const acceptedSubmissions = submissions.filter(sub => sub.verdict === 'OK');
       const uniqueProblems = new Set(acceptedSubmissions.map(sub => `${sub.problem.contestId}-${sub.problem.index}`));
-      
+
       const difficultyBreakdown = {
         '800-1200': 0,
         '1201-1600': 0,
@@ -77,13 +77,13 @@ export default function CompareUsersPage() {
 
     setLoading(true);
     setError('');
-    
+
     try {
       const [data1, data2] = await Promise.all([
         fetchUserData(user1.trim()),
         fetchUserData(user2.trim())
       ]);
-      
+
       setUser1Data(data1);
       setUser2Data(data2);
     } catch (err) {
@@ -95,7 +95,7 @@ export default function CompareUsersPage() {
 
   const getDifficultyChartData = () => {
     if (!user1Data || !user2Data) return [];
-    
+
     return Object.keys(user1Data.difficultyBreakdown).map(difficulty => ({
       difficulty,
       [user1Data.handle]: user1Data.difficultyBreakdown[difficulty],
@@ -105,7 +105,7 @@ export default function CompareUsersPage() {
 
   const getRadarChartData = () => {
     if (!user1Data || !user2Data) return [];
-    
+
     const maxValues = {
       'Total Solved': Math.max(user1Data.totalSolved, user2Data.totalSolved),
       'Rating': Math.max(user1Data.rating || 0, user2Data.rating || 0),
@@ -155,7 +155,7 @@ export default function CompareUsersPage() {
   };
 
   return (
-    <div className="min-h-screen pt-20 pb-8" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+    <div className="min-h-screen pt-[120px] md:pt-28 pb-8" style={{ backgroundColor: 'var(--bg-secondary)' }}>
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-8">
@@ -219,7 +219,7 @@ export default function CompareUsersPage() {
               {loading ? 'Comparing...' : 'Compare'}
             </button>
           </div>
-          
+
           {error && (
             <div className="mt-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg">
               <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
@@ -287,7 +287,7 @@ export default function CompareUsersPage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
                   <XAxis dataKey="difficulty" stroke="var(--text-muted)" />
                   <YAxis stroke="var(--text-muted)" />
-                  <Tooltip 
+                  <Tooltip
                     contentStyle={{
                       backgroundColor: 'var(--bg-primary)',
                       border: '1px solid var(--border-color)',
@@ -327,7 +327,7 @@ export default function CompareUsersPage() {
                     fillOpacity={0.1}
                     strokeWidth={2}
                   />
-                  <Tooltip 
+                  <Tooltip
                     contentStyle={{
                       backgroundColor: 'var(--bg-primary)',
                       border: '1px solid var(--border-color)',
@@ -352,7 +352,7 @@ export default function CompareUsersPage() {
                   {Math.max(user1Data.rating || 0, user2Data.rating || 0)} rating
                 </p>
               </div>
-              
+
               <div className="leet-card text-center">
                 <Code className="mx-auto mb-4 text-green-500" size={32} />
                 <h4 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
@@ -365,7 +365,7 @@ export default function CompareUsersPage() {
                   {Math.max(user1Data.totalSolved, user2Data.totalSolved)} problems
                 </p>
               </div>
-              
+
               <div className="leet-card text-center">
                 <Trophy className="mx-auto mb-4 text-purple-500" size={32} />
                 <h4 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>

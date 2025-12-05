@@ -39,7 +39,7 @@ export default function ExportPage() {
       // Calculate statistics
       const acceptedSubmissions = submissions.filter(sub => sub.verdict === 'OK');
       const uniqueProblems = new Set(acceptedSubmissions.map(sub => `${sub.problem.contestId}-${sub.problem.index}`));
-      
+
       const languageStats = {};
       acceptedSubmissions.forEach(sub => {
         const lang = sub.programmingLanguage;
@@ -97,7 +97,7 @@ export default function ExportPage() {
 
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
-      
+
       const imgWidth = 210;
       const pageHeight = 295;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
@@ -193,7 +193,7 @@ export default function ExportPage() {
   };
 
   return (
-    <div className="min-h-screen pt-20 pb-8" style={{ backgroundColor: 'var(--bg-secondary)' }}>
+    <div className="min-h-screen pt-[120px] md:pt-28 pb-8" style={{ backgroundColor: 'var(--bg-secondary)' }}>
       <div className="max-w-7xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-8">
@@ -237,7 +237,7 @@ export default function ExportPage() {
               {loading ? 'Loading...' : 'Generate Report'}
             </button>
           </div>
-          
+
           {error && (
             <div className="mt-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-lg">
               <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
