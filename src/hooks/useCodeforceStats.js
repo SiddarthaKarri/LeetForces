@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { fetchFromCodeforces } from "../utils/api";
 
 // Custom hook to fetch and share language and tag statistics
 const useCodeforceStats = (handle) => {
@@ -42,25 +43,25 @@ const useCodeforceStats = (handle) => {
 
   useEffect(() => {
     if (!handle) return;
-    
+
     setLoading(true);
     setLanguageStats({});
     setTagStats({});
     setSubmissions([]);
-    
+
     // Fetch submissions and problems data
     Promise.all([
-      fetch(`https://codeforces.com/api/user.status?handle=${encodeURIComponent(handle)}`),
-      fetch('https://codeforces.com/api/problemset.problems')
+      fetchFromCodeforces(`/user.status?handle=${encodeURIComponent(handle)}`),
+      fetchFromCodeforces(`/problemset.problems`)
     ])
-      .then(responses => Promise.all(responses.map(res => res.json())))
+      // responses are already parsed JSON from fetchFromCodeforces
       .then(([submissionsResponse, problemsResponse]) => {
         if (submissionsResponse.status === 'OK' && problemsResponse.status === 'OK') {
           const allSubmissions = submissionsResponse.result;
-          
+
           // Store submissions data
           setSubmissions(allSubmissions);
-          
+
           // Calculate statistics
           calculateLanguageStats(allSubmissions);
           calculateTagStats(problemsResponse.result.problems, allSubmissions);

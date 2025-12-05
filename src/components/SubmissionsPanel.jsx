@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
+import { BASE_URL } from "../config";
+import { fetchFromCodeforces } from "../utils/api";
 import { HeatmapSkeleton } from "./LoadingSpinner";
 
 /**
@@ -38,31 +40,33 @@ export default function SubmissionsPanel({ handle }) {
     if (!handle) return;
     setLoading(true);
     setSubs([]);
-    
+
     // Update URL with username for sharing
-    const newUrl = `${window.location.origin}/@${encodeURIComponent(handle)}`;
+    // Use BASE_URL to ensure we stay within the correct path
+    const newUrl = `${window.location.origin}${BASE_URL}/@${encodeURIComponent(handle)}`;
     window.history.replaceState({}, '', newUrl);
-    
+
+    // Fetch user info, ALL submissions, and total problems in parallel
     // Fetch user info, ALL submissions, and total problems in parallel
     Promise.all([
-      fetch(`https://codeforces.com/api/user.info?handles=${encodeURIComponent(handle)}`),
-      fetch(`https://codeforces.com/api/user.status?handle=${encodeURIComponent(handle)}`),
-      fetch('https://codeforces.com/api/problemset.problems')
+      fetchFromCodeforces(`/user.info?handles=${encodeURIComponent(handle)}`),
+      fetchFromCodeforces(`/user.status?handle=${encodeURIComponent(handle)}`),
+      fetchFromCodeforces(`/problemset.problems`)
     ])
-      .then(responses => Promise.all(responses.map(res => res.json())))
+      // responses are already parsed JSON from fetchFromCodeforces
       .then(([userResponse, submissionsResponse, problemsResponse]) => {
         if (userResponse.status === 'OK' && submissionsResponse.status === 'OK') {
           setUserInfo(userResponse.result[0]);
-          
+
           // Set total problems available
           if (problemsResponse.status === 'OK') {
             setTotalProblemsAvailable(problemsResponse.result.problems.length);
           }
-          
+
           // Process ALL submissions for statistics
           const allSubmissions = submissionsResponse.result;
           setSubmissions(allSubmissions);
-          
+
           // Take recent submissions for display (will be filtered by search)
           const recentSubmissions = allSubmissions.slice(0, 100); // Increased for better filtering
           const mapped = recentSubmissions.map(s => ({
@@ -77,7 +81,7 @@ export default function SubmissionsPanel({ handle }) {
             creationTime: s.creationTimeSeconds
           }));
           setSubs(mapped);
-          
+
           // Calculate statistics
           calculateSolvedProblems(allSubmissions);
           calculateLanguageStats(allSubmissions);
@@ -114,15 +118,15 @@ export default function SubmissionsPanel({ handle }) {
     const now = new Date();
     const oneYearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
     const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-    
+
     // Get only accepted submissions
     const acceptedSubmissions = allSubmissions.filter(sub => sub.verdict === 'OK');
-    
+
     // Track unique problems solved (by contestId + index)
     const allTimeProblems = new Set();
     const lastYearProblems = new Set();
     const lastMonthProblems = new Set();
-    
+
     // Track by difficulty
     const difficultyBreakdown = {
       '800-1200': new Set(),
@@ -131,23 +135,23 @@ export default function SubmissionsPanel({ handle }) {
       '2001-2400': new Set(),
       '2401+': new Set()
     };
-    
+
     // Track attempted problems (all submissions, not just accepted)
     const attemptedProblems = new Set();
-    
+
     // First, track all attempted problems
     allSubmissions.forEach(sub => {
       const problemKey = `${sub.problem.contestId}-${sub.problem.index}`;
       attemptedProblems.add(problemKey);
     });
-    
+
     acceptedSubmissions.forEach(sub => {
       const submissionDate = new Date(sub.creationTimeSeconds * 1000);
       const problemKey = `${sub.problem.contestId}-${sub.problem.index}`;
-      
+
       // All time
       allTimeProblems.add(problemKey);
-      
+
       // Difficulty breakdown by rating ranges
       const rating = sub.problem.rating;
       if (rating) {
@@ -163,18 +167,18 @@ export default function SubmissionsPanel({ handle }) {
           difficultyBreakdown['2401+'].add(problemKey);
         }
       }
-      
+
       // Last year
       if (submissionDate >= oneYearAgo) {
         lastYearProblems.add(problemKey);
       }
-      
+
       // Last month
       if (submissionDate >= oneMonthAgo) {
         lastMonthProblems.add(problemKey);
       }
     });
-    
+
     setSolvedProblems({
       allTime: allTimeProblems.size,
       lastYear: lastYearProblems.size,
@@ -248,49 +252,49 @@ export default function SubmissionsPanel({ handle }) {
   const generateHeatmapData = useMemo(() => {
     const today = new Date();
     today.setHours(23, 59, 59, 999);
-    
+
     // Start from exactly one year ago
     const oneYearAgo = new Date(today);
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
     oneYearAgo.setHours(0, 0, 0, 0);
-    
+
     // Find the Sunday of the week containing oneYearAgo
     const startDate = new Date(oneYearAgo);
     const dayOfWeek = startDate.getDay();
     startDate.setDate(startDate.getDate() - dayOfWeek);
-    
+
     const weeks = [];
     const dayData = {};
-    
+
     // Create submission count map
     submissions.forEach(sub => {
       const date = new Date(sub.creationTimeSeconds * 1000);
       const dateStr = date.toISOString().split('T')[0];
       dayData[dateStr] = (dayData[dateStr] || 0) + 1;
     });
-    
+
     let currentDate = new Date(startDate);
     let monthIndex = 1;
     let currentMonth = -1;
-    
+
     // Generate weeks for the full year
     while (currentDate <= today) {
       const weekData = [];
-      
+
       for (let day = 0; day < 7; day++) {
         const cellDate = new Date(currentDate);
         cellDate.setDate(currentDate.getDate() + day);
-        
+
         // Check if we need to start a new month
         if (cellDate.getMonth() !== currentMonth) {
           currentMonth = cellDate.getMonth();
           monthIndex++;
         }
-        
+
         if (cellDate <= today && cellDate >= oneYearAgo) {
           const dateStr = cellDate.toISOString().split('T')[0];
           const submissionCount = dayData[dateStr] || 0;
-          
+
           weekData.push({
             date: new Date(cellDate),
             dateStr: dateStr,
@@ -333,22 +337,22 @@ export default function SubmissionsPanel({ handle }) {
           });
         }
       }
-      
+
       weeks.push(weekData);
       currentDate.setDate(currentDate.getDate() + 7);
-      
+
       // Stop if we've gone too far past today
       if (currentDate.getTime() - today.getTime() > 7 * 24 * 60 * 60 * 1000) {
         break;
       }
     }
-    
+
     return weeks;
   }, [submissions]);
 
   const getLeetCodeFill = (level, isFuture) => {
     if (isFuture) return "transparent";
-    
+
     // Use LeetCode's exact color scheme
     const colors = {
       0: "var(--fill-tertiary)", // Empty days - light gray in light mode, dark gray in dark mode
@@ -357,7 +361,7 @@ export default function SubmissionsPanel({ handle }) {
       3: "var(--green-60)",       // Darker green
       4: "var(--green-80)"        // Darkest green
     };
-    
+
     return colors[level] || "var(--fill-tertiary)";
   };
 
@@ -366,20 +370,20 @@ export default function SubmissionsPanel({ handle }) {
     const cellGap = 2;
     const monthGap = 8; // Add extra gap between months
     const weeks = generateHeatmapData;
-    
+
     if (!weeks.length) return null;
-    
+
     // Group weeks by month and add spacing
     const monthGroups = [];
     let currentMonthGroup = null;
     let xOffset = 0;
-    
+
     weeks.forEach((week, weekIndex) => {
       const firstValidDay = week.find(day => day);
       if (!firstValidDay) return;
-      
+
       const monthNum = firstValidDay.month + 1;
-      
+
       if (!currentMonthGroup || currentMonthGroup.month !== monthNum) {
         if (currentMonthGroup) {
           monthGroups.push(currentMonthGroup);
@@ -391,26 +395,26 @@ export default function SubmissionsPanel({ handle }) {
           startX: xOffset
         };
       }
-      
+
       currentMonthGroup.weeks.push({
         weekData: week,
         x: xOffset
       });
-      
+
       xOffset += (cellSize + cellGap);
     });
-    
+
     if (currentMonthGroup) {
       monthGroups.push(currentMonthGroup);
     }
-    
+
     const totalWidth = xOffset;
     const totalHeight = 7 * (cellSize + cellGap);
-    
+
     // Generate month labels
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
     return (
       <div className="leetcode-svg-heatmap" style={{ position: 'relative' }}>
         <svg viewBox={`0 0 ${totalWidth + 20} ${totalHeight + 40}`} width="100%" height="140">
@@ -419,29 +423,29 @@ export default function SubmissionsPanel({ handle }) {
               {/* Month separator line */}
               {groupIndex > 0 && (
                 <line
-                  x1={monthGroup.startX - monthGap/2}
+                  x1={monthGroup.startX - monthGap / 2}
                   y1="0"
-                  x2={monthGroup.startX - monthGap/2}
+                  x2={monthGroup.startX - monthGap / 2}
                   y2={totalHeight}
                   stroke="var(--border-color)"
                   strokeWidth="1"
                   opacity="0.3"
                 />
               )}
-              
+
               {monthGroup.weeks.map((weekInfo, weekIndex) => (
                 <g key={weekIndex}>
                   {weekInfo.weekData.map((day, dayIndex) => {
                     if (!day) return null;
-                    
+
                     const y = dayIndex * (cellSize + cellGap);
                     const level = getHeatmapLevel(day.submissions);
                     const fill = getLeetCodeFill(level, day.isFuture);
                     const isSelected = selectedHeatmapDay?.dateStr === day.dateStr;
-                    
+
                     // Don't render future days
                     if (day.isFuture) return null;
-                    
+
                     return (
                       <rect
                         key={dayIndex}
@@ -458,29 +462,29 @@ export default function SubmissionsPanel({ handle }) {
                           const rect = e.target.getBoundingClientRect();
                           const container = e.target.closest('.leetcode-svg-heatmap').getBoundingClientRect();
                           const scrollContainer = document.querySelector('.leetcode-svg-heatmap');
-                          
+
                           // Calculate position relative to container
                           let x = rect.left - container.left + rect.width / 2;
                           let y = rect.top - container.top - 10;
-                          
+
                           // Ensure tooltip doesn't go off screen
                           const tooltipWidth = 200; // Approximate tooltip width
                           const tooltipHeight = 60; // Approximate tooltip height
                           const containerWidth = container.width;
                           const containerHeight = container.height;
-                          
+
                           // Adjust horizontal position if too close to edges
                           if (x - tooltipWidth / 2 < 10) {
                             x = tooltipWidth / 2 + 10;
                           } else if (x + tooltipWidth / 2 > containerWidth - 10) {
                             x = containerWidth - tooltipWidth / 2 - 10;
                           }
-                          
+
                           // Smart vertical positioning for all rows
                           let showBelow = false;
                           const spaceAbove = rect.top - container.top;
                           const spaceBelow = container.bottom - rect.bottom;
-                          
+
                           // For rows 2, 3, 4 (middle rows), check which side has more space
                           if (dayIndex >= 1 && dayIndex <= 3) {
                             if (spaceBelow > spaceAbove && spaceBelow > tooltipHeight + 10) {
@@ -503,7 +507,7 @@ export default function SubmissionsPanel({ handle }) {
                               showBelow = true;
                             }
                           }
-                          
+
                           setHoverTooltip({
                             x: x,
                             y: y,
@@ -527,17 +531,17 @@ export default function SubmissionsPanel({ handle }) {
               ))}
             </g>
           ))}
-          
+
           {/* Month labels */}
           {monthGroups.map((monthGroup, index) => {
             const monthName = monthNames[monthGroup.month - 1] || `Month ${monthGroup.month}`;
             return (
-              <text 
+              <text
                 key={index}
-                x={monthGroup.startX + 10} 
-                y={totalHeight + 25} 
-                fontSize="11px" 
-                fill="var(--text-muted)" 
+                x={monthGroup.startX + 10}
+                y={totalHeight + 25}
+                fontSize="11px"
+                fill="var(--text-muted)"
                 className="font-xs"
               >
                 {monthName}
@@ -545,7 +549,7 @@ export default function SubmissionsPanel({ handle }) {
             );
           })}
         </svg>
-        
+
         {/* Custom Tooltip */}
         {hoverTooltip && (
           <div
@@ -554,8 +558,8 @@ export default function SubmissionsPanel({ handle }) {
               position: 'absolute',
               left: hoverTooltip.x,
               top: hoverTooltip.y,
-              transform: hoverTooltip.showBelow 
-                ? 'translateX(-50%) translateY(0%)' 
+              transform: hoverTooltip.showBelow
+                ? 'translateX(-50%) translateY(0%)'
                 : 'translateX(-50%) translateY(-100%)',
               backgroundColor: 'var(--bg-primary)',
               border: '1px solid var(--border-color)',
@@ -573,19 +577,19 @@ export default function SubmissionsPanel({ handle }) {
             }}
           >
             <div style={{ fontWeight: '600', marginBottom: '6px', fontSize: '14px' }}>
-              {hoverTooltip.submissions === 0 ? 'No submissions' : 
-               hoverTooltip.submissions === 1 ? '1 submission' : 
-               hoverTooltip.submissions === 2 ? '2 submissions' :
-               hoverTooltip.submissions === 3 ? '3 submissions' :
-               hoverTooltip.submissions === 4 ? '4 submissions' :
-               `${hoverTooltip.submissions} submissions`}
+              {hoverTooltip.submissions === 0 ? 'No submissions' :
+                hoverTooltip.submissions === 1 ? '1 submission' :
+                  hoverTooltip.submissions === 2 ? '2 submissions' :
+                    hoverTooltip.submissions === 3 ? '3 submissions' :
+                      hoverTooltip.submissions === 4 ? '4 submissions' :
+                        `${hoverTooltip.submissions} submissions`}
             </div>
             <div style={{ color: 'var(--text-muted)', fontSize: '12px' }}>
-              {hoverTooltip.date.toLocaleDateString('en-US', { 
-                weekday: 'short', 
-                month: 'short', 
-                day: 'numeric', 
-                year: 'numeric' 
+              {hoverTooltip.date.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
               })}
             </div>
           </div>
@@ -604,19 +608,19 @@ export default function SubmissionsPanel({ handle }) {
 
   const getMonthLabels = (weeks) => {
     const months = [];
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
-                       'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
     let lastMonth = -1;
-    
+
     weeks.forEach((week, weekIndex) => {
       // Find the first valid day in the week
       const firstValidDay = week.find(day => day !== null);
       if (!firstValidDay) return;
-      
+
       const month = firstValidDay.date.getMonth();
       const monthName = monthNames[month];
-      
+
       // Add month label when month changes
       if (month !== lastMonth) {
         months.push({
@@ -627,16 +631,16 @@ export default function SubmissionsPanel({ handle }) {
         lastMonth = month;
       }
     });
-    
+
     return months;
   };
 
   // Get filtered and paginated submissions - Memoized for performance
   const filteredSubmissions = useMemo(() => {
     if (!searchFilter) return subs;
-    
+
     const lowercaseFilter = searchFilter.toLowerCase();
-    return subs.filter(sub => 
+    return subs.filter(sub =>
       sub.name.toLowerCase().includes(lowercaseFilter) ||
       sub.verdict.toLowerCase().includes(lowercaseFilter) ||
       sub.language.toLowerCase().includes(lowercaseFilter) ||
@@ -656,18 +660,18 @@ export default function SubmissionsPanel({ handle }) {
 
   const heatmapWeeks = generateHeatmapData;
   const monthLabels = useMemo(() => getMonthLabels(heatmapWeeks), [heatmapWeeks]);
-  
+
   // Filter submissions from past year for accurate statistics
   const oneYearAgo = new Date();
   oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-  
+
   const pastYearSubmissions = submissions.filter(sub => {
     const submissionDate = new Date(sub.creationTimeSeconds * 1000);
     return submissionDate >= oneYearAgo;
   });
-  
+
   const totalSubmissions = pastYearSubmissions.length;
-  
+
   // Calculate statistics based on past year data
   const activeDays = heatmapWeeks.flat().filter(day => day && day.submissions > 0).length;
   const maxStreak = calculateMaxStreak(heatmapWeeks);
@@ -679,7 +683,7 @@ export default function SubmissionsPanel({ handle }) {
   function calculateMaxStreak(weeks) {
     let maxStreak = 0;
     let currentStreak = 0;
-    
+
     weeks.flat().forEach(day => {
       if (!day) return; // Skip null days
       if (day.submissions > 0) {
@@ -689,7 +693,7 @@ export default function SubmissionsPanel({ handle }) {
         currentStreak = 0;
       }
     });
-    
+
     return maxStreak;
   }
 
@@ -699,23 +703,23 @@ export default function SubmissionsPanel({ handle }) {
     const allDays = weeks.flat().filter(day => day !== null); // Filter out null days
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
     // Start from today and go backwards
     for (let i = allDays.length - 1; i >= 0; i--) {
       const day = allDays[i];
       const dayDate = new Date(day.date);
       dayDate.setHours(0, 0, 0, 0);
-      
+
       // Only count days up to today
       if (dayDate > today) continue;
-      
+
       if (day.submissions > 0) {
         streak++;
       } else {
         break;
       }
     }
-    
+
     return streak;
   }
 
@@ -723,14 +727,14 @@ export default function SubmissionsPanel({ handle }) {
   function calculateLastYearMaxStreak(weeks) {
     const now = new Date();
     const oneYearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
-    
+
     let maxStreak = 0;
     let currentStreak = 0;
-    
+
     weeks.flat().forEach(day => {
       if (!day) return; // Skip null days
       const dayDate = new Date(day.date);
-      
+
       if (dayDate >= oneYearAgo && dayDate <= now) {
         if (day.submissions > 0) {
           currentStreak++;
@@ -740,7 +744,7 @@ export default function SubmissionsPanel({ handle }) {
         }
       }
     });
-    
+
     return maxStreak;
   }
 
@@ -756,7 +760,7 @@ export default function SubmissionsPanel({ handle }) {
 
     const getProgressData = useCallback(() => {
       const activeCategory = hoveredCategory || selectedCategory;
-      
+
       if (activeCategory === 'overall' || !activeCategory) {
         return {
           solved: solvedProblems.allTime,
@@ -777,7 +781,7 @@ export default function SubmissionsPanel({ handle }) {
 
     const progressData = getProgressData();
     const percentage = progressData.total > 0 ? (progressData.solved / progressData.total) * 100 : 0;
-    
+
     // Main circle parameters
     const size = 160;
     const strokeWidth = 12;
@@ -837,9 +841,9 @@ export default function SubmissionsPanel({ handle }) {
           const segmentLength = (categoryPercentage / 100) * circumference;
           const strokeDasharray = `${segmentLength} ${circumference}`;
           const strokeDashoffset = -totalOffset;
-          
+
           totalOffset += segmentLength;
-          
+
           return (
             <circle
               key={category.key}
@@ -884,9 +888,9 @@ export default function SubmissionsPanel({ handle }) {
               </svg>
               {/* Center text with enhanced animations */}
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <div 
+                <div
                   className="text-3xl font-bold transition-all duration-300"
-                  style={{ 
+                  style={{
                     color: hoveredCategory ? progressData.color : 'var(--text-primary)',
                     transform: hoveredCategory ? 'scale(1.1)' : 'scale(1)'
                   }}
@@ -900,9 +904,9 @@ export default function SubmissionsPanel({ handle }) {
                   {hoveredCategory ? progressData.label : 'Solved'}
                 </div>
                 {(hoveredCategory || selectedCategory !== 'overall') && (
-                  <div 
+                  <div
                     className="text-xs mt-1 transition-all duration-300"
-                    style={{ 
+                    style={{
                       color: hoveredCategory ? progressData.color : 'var(--text-muted)',
                       opacity: hoveredCategory ? 1 : 0.7
                     }}
@@ -924,7 +928,7 @@ export default function SubmissionsPanel({ handle }) {
                 const solved = solvedProblems[category.key] || 0;
                 const total = category.total;
                 const percent = total > 0 ? Math.round((solved / total) * 100) : 0;
-                
+
                 return (
                   <div
                     key={category.key}
@@ -941,9 +945,9 @@ export default function SubmissionsPanel({ handle }) {
                     }}
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <div 
+                      <div
                         className="w-3 h-3 rounded-full transition-all duration-300"
-                        style={{ 
+                        style={{
                           backgroundColor: category.color,
                           boxShadow: hoveredCategory === category.key ? `0 0 8px ${category.color}` : 'none'
                         }}
@@ -968,7 +972,7 @@ export default function SubmissionsPanel({ handle }) {
                 const solved = solvedProblems[category.key] || 0;
                 const total = category.total;
                 const percent = total > 0 ? Math.round((solved / total) * 100) : 0;
-                
+
                 return (
                   <div
                     key={category.key}
@@ -985,9 +989,9 @@ export default function SubmissionsPanel({ handle }) {
                     }}
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <div 
+                      <div
                         className="w-3 h-3 rounded-full transition-all duration-300"
-                        style={{ 
+                        style={{
                           backgroundColor: category.color,
                           boxShadow: hoveredCategory === category.key ? `0 0 8px ${category.color}` : 'none'
                         }}
@@ -1012,7 +1016,7 @@ export default function SubmissionsPanel({ handle }) {
                 const solved = solvedProblems[category.key] || 0;
                 const total = category.total;
                 const percent = total > 0 ? Math.round((solved / total) * 100) : 0;
-                
+
                 return (
                   <div
                     key={category.key}
@@ -1029,9 +1033,9 @@ export default function SubmissionsPanel({ handle }) {
                     }}
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <div 
+                      <div
                         className="w-3 h-3 rounded-full transition-all duration-300"
-                        style={{ 
+                        style={{
                           backgroundColor: category.color,
                           boxShadow: hoveredCategory === category.key ? `0 0 8px ${category.color}` : 'none'
                         }}
@@ -1048,9 +1052,9 @@ export default function SubmissionsPanel({ handle }) {
                   </div>
                 );
               })}
-              
+
               {/* Attempting count - No hover functionality, responsive */}
-              <div 
+              <div
                 className="flex-1 flex items-center justify-between p-2 sm:p-3 rounded-lg border"
                 style={{
                   backgroundColor: 'var(--bg-tertiary)',
@@ -1082,14 +1086,14 @@ export default function SubmissionsPanel({ handle }) {
   function calculateLastMonthStreak(weeks) {
     const now = new Date();
     const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-    
+
     let maxStreak = 0;
     let currentStreak = 0;
-    
+
     weeks.flat().forEach(day => {
       if (!day) return; // Skip null days
       const dayDate = new Date(day.date);
-      
+
       if (dayDate >= oneMonthAgo && dayDate <= now) {
         if (day.submissions > 0) {
           currentStreak++;
@@ -1099,7 +1103,7 @@ export default function SubmissionsPanel({ handle }) {
         }
       }
     });
-    
+
     return maxStreak;
   }
 
@@ -1113,8 +1117,8 @@ export default function SubmissionsPanel({ handle }) {
               {userInfo?.firstName || handle}'s Profile
             </h2>
             <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
-              {userInfo?.country ? `${userInfo.country} • ` : ''} 
-              Rank: {userInfo?.rank || 'Unrated'} • 
+              {userInfo?.country ? `${userInfo.country} • ` : ''}
+              Rank: {userInfo?.rank || 'Unrated'} •
               Rating: {userInfo?.rating || 'N/A'}
             </p>
           </div>
@@ -1145,7 +1149,7 @@ export default function SubmissionsPanel({ handle }) {
             {solvedProblems.allTime} solved, {totalProblemsAvailable} total available
           </div>
         </div>
-        
+
         <LeetCodeProgress />
       </div>
 
@@ -1161,7 +1165,7 @@ export default function SubmissionsPanel({ handle }) {
             <span>Current streak: <strong style={{ color: 'var(--text-primary)' }}>{currentStreak}</strong></span>
           </div>
         </div>
-        
+
         <div className="leetcode-heatmap-container">
           {/* Heatmap Legend */}
           <div className="heatmap-legend">
@@ -1175,16 +1179,16 @@ export default function SubmissionsPanel({ handle }) {
             </div>
             <span className="legend-text">More</span>
           </div>
-          
+
           {/* SVG Heatmap */}
-          <div 
+          <div
             className="heatmap-grid-wrapper"
             ref={setHeatmapScrollRef}
           >
             {generateSVGHeatmap()}
           </div>
         </div>
-        
+
         {/* Selected Day Details */}
         {selectedHeatmapDay && selectedHeatmapDay.submissionDetails.length > 0 && (
           <div className="mt-4 p-4 border rounded-lg" style={{ backgroundColor: 'var(--bg-tertiary)', borderColor: 'var(--border-color)' }}>
@@ -1206,7 +1210,7 @@ export default function SubmissionsPanel({ handle }) {
             </div>
           </div>
         )}
-        
+
         {/* Statistics Row */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mt-6 pt-4" style={{ borderTop: '1px solid var(--border-color)' }}>
           <div className="text-center">
@@ -1282,11 +1286,11 @@ export default function SubmissionsPanel({ handle }) {
                   color: 'var(--text-primary)'
                 }}
               />
-              <svg 
+              <svg
                 className="absolute left-2 top-2.5 h-4 w-4"
                 style={{ color: 'var(--text-muted)' }}
-                fill="none" 
-                viewBox="0 0 24 24" 
+                fill="none"
+                viewBox="0 0 24 24"
                 stroke="currentColor"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -1327,7 +1331,7 @@ export default function SubmissionsPanel({ handle }) {
                 </div>
                 <div className="submission-time flex items-center gap-2 text-xs sm:text-sm">
                   {s.rating && (
-                    <span 
+                    <span
                       className="font-medium"
                       style={{ color: getDifficultyColor(s.rating) }}
                     >
@@ -1338,7 +1342,7 @@ export default function SubmissionsPanel({ handle }) {
                   <span className="hidden sm:inline">• {s.time}</span>
                 </div>
               </div>
-              <div 
+              <div
                 className="text-sm font-semibold ml-4 flex-shrink-0"
                 style={{ color: getVerdictColor(s.verdict) }}
               >

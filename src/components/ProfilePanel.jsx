@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { fetchFromCodeforces } from "../utils/api";
 import { ProfileSkeleton } from "./LoadingSpinner";
 
 /**
  * Fetches user.info for the handle and displays a profile card
  */
-export default function ProfilePanel({ handle, onProfileData }) {
+export default function ProfilePanel({ handle, onProfileData, setShareModalOpen }) {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -14,8 +15,8 @@ export default function ProfilePanel({ handle, onProfileData }) {
     setLoading(true);
     setError(null);
     setProfile(null);
-    fetch(`https://codeforces.com/api/user.info?handles=${encodeURIComponent(handle)}`)
-      .then(res => res.json())
+    setProfile(null);
+    fetchFromCodeforces(`/user.info?handles=${encodeURIComponent(handle)}`)
       .then(json => {
         if (json.status === 'OK') {
           const profileData = json.result[0];
@@ -79,15 +80,21 @@ export default function ProfilePanel({ handle, onProfileData }) {
 
             <div className="mt-6 text-sm" style={{ color: 'var(--text-muted)' }}>
               <div><strong style={{ color: 'var(--text-secondary)' }}>Organization:</strong> {profile.organization || '—'}</div>
-              <div className="mt-2">
-                <a 
-                  className="text-amber-400 hover:text-amber-300 transition-colors" 
-                  href={`https://codeforces.com/profile/${profile.handle}`} 
-                  target="_blank" 
+              <div className="mt-2 flex flex-col gap-2">
+                <a
+                  className="text-amber-400 hover:text-amber-300 transition-colors"
+                  href={`https://codeforces.com/profile/${profile.handle}`}
+                  target="_blank"
                   rel="noreferrer"
                 >
                   Open on Codeforces →
                 </a>
+                <button
+                  onClick={() => setShareModalOpen(true)}
+                  className="text-blue-400 hover:text-blue-300 transition-colors text-left"
+                >
+                  Share Profile
+                </button>
               </div>
             </div>
           </div>
@@ -106,8 +113,8 @@ export default function ProfilePanel({ handle, onProfileData }) {
 
 function Stat({ label, value }) {
   return (
-    <div 
-      className="p-3 rounded-md transition-colors hover:opacity-80" 
+    <div
+      className="p-3 rounded-md transition-colors hover:opacity-80"
       style={{ backgroundColor: 'var(--bg-tertiary)' }}
     >
       <div className="text-xs" style={{ color: 'var(--text-muted)' }}>{label}</div>

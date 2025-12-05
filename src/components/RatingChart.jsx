@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import dayjs from "dayjs";
 import { ChartSkeleton } from "./LoadingSpinner";
+import { fetchFromCodeforces } from "../utils/api";
 
 /**
  * Custom tooltip component for the rating chart - LeetCode style
@@ -13,35 +14,35 @@ const CustomTooltip = ({ active, payload, label }) => {
     const isIncrease = ratingChange > 0;
     const changeSymbol = isIncrease ? '↗' : ratingChange < 0 ? '↘' : '→';
     const changeColor = isIncrease ? 'var(--easy-color)' : ratingChange < 0 ? 'var(--hard-color)' : 'var(--text-muted)';
-    
+
     return (
       <div className="p-3 rounded-lg shadow-lg border"
-           style={{ 
-             backgroundColor: 'var(--bg-primary)', 
-             borderColor: 'var(--border-color)',
-             color: 'var(--text-primary)',
-             minWidth: '200px'
-           }}>
+        style={{
+          backgroundColor: 'var(--bg-primary)',
+          borderColor: 'var(--border-color)',
+          color: 'var(--text-primary)',
+          minWidth: '200px'
+        }}>
         <div className="font-semibold text-sm mb-2" style={{ color: 'var(--text-primary)' }}>
           {data.contest}
         </div>
-        
+
         <div className="space-y-1 text-xs">
           <div className="flex justify-between">
             <span style={{ color: 'var(--text-muted)' }}>Date:</span>
             <span style={{ color: 'var(--text-primary)' }}>{data.fullDate}</span>
           </div>
-          
+
           <div className="flex justify-between">
             <span style={{ color: 'var(--text-muted)' }}>Rank:</span>
             <span style={{ color: 'var(--text-primary)' }}>#{data.rank}</span>
           </div>
-          
+
           <div className="flex justify-between">
             <span style={{ color: 'var(--text-muted)' }}>Rating:</span>
             <span style={{ color: 'var(--text-primary)' }}>{data.rating}</span>
           </div>
-          
+
           {ratingChange !== 0 && (
             <div className="flex justify-between">
               <span style={{ color: 'var(--text-muted)' }}>Change:</span>
@@ -51,7 +52,7 @@ const CustomTooltip = ({ active, payload, label }) => {
               </span>
             </div>
           )}
-          
+
           {data.problemsSolved && (
             <div className="flex justify-between">
               <span style={{ color: 'var(--text-muted)' }}>Solved:</span>
@@ -76,14 +77,14 @@ export default function RatingChart({ handle }) {
     if (!handle) return;
     setLoading(true);
     setData([]);
-    fetch(`https://codeforces.com/api/user.rating?handle=${encodeURIComponent(handle)}`)
-      .then(res => res.json())
+    setData([]);
+    fetchFromCodeforces(`/user.rating?handle=${encodeURIComponent(handle)}`)
       .then(json => {
         if (json.status === 'OK') {
           const mapped = json.result.map((item, index) => {
             const prevRating = index > 0 ? json.result[index - 1].newRating : item.oldRating;
             const ratingChange = item.newRating - prevRating;
-            
+
             return {
               time: dayjs.unix(item.ratingUpdateTimeSeconds).format('MMM DD'),
               fullDate: dayjs.unix(item.ratingUpdateTimeSeconds).format('MMM DD, YYYY'),
@@ -125,46 +126,46 @@ export default function RatingChart({ handle }) {
 
           {data.length > 0 && (
             <div style={{ height: 320 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-              <CartesianGrid 
-                strokeDasharray="3 3" 
-                stroke="var(--border-color)" 
-                strokeOpacity={0.3} 
-              />
-              <XAxis 
-                dataKey="time" 
-                tick={{ 
-                  fontSize: 12, 
-                  fill: 'var(--text-muted)' 
-                }}
-                axisLine={{ stroke: 'var(--border-color)' }}
-                tickLine={{ stroke: 'var(--border-color)' }}
-              />
-              <YAxis 
-                tick={{ 
-                  fontSize: 12, 
-                  fill: 'var(--text-muted)' 
-                }}
-                axisLine={{ stroke: 'var(--border-color)' }}
-                tickLine={{ stroke: 'var(--border-color)' }}
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Line 
-                type="monotone" 
-                dataKey="rating" 
-                stroke="#f59e0b" 
-                strokeWidth={2.5} 
-                dot={false}
-                activeDot={{ 
-                  r: 5, 
-                  fill: '#f59e0b', 
-                  stroke: 'var(--bg-primary)', 
-                  strokeWidth: 2 
-                }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="var(--border-color)"
+                    strokeOpacity={0.3}
+                  />
+                  <XAxis
+                    dataKey="time"
+                    tick={{
+                      fontSize: 12,
+                      fill: 'var(--text-muted)'
+                    }}
+                    axisLine={{ stroke: 'var(--border-color)' }}
+                    tickLine={{ stroke: 'var(--border-color)' }}
+                  />
+                  <YAxis
+                    tick={{
+                      fontSize: 12,
+                      fill: 'var(--text-muted)'
+                    }}
+                    axisLine={{ stroke: 'var(--border-color)' }}
+                    tickLine={{ stroke: 'var(--border-color)' }}
+                  />
+                  <Tooltip content={<CustomTooltip />} />
+                  <Line
+                    type="monotone"
+                    dataKey="rating"
+                    stroke="#f59e0b"
+                    strokeWidth={2.5}
+                    dot={false}
+                    activeDot={{
+                      r: 5,
+                      fill: '#f59e0b',
+                      stroke: 'var(--bg-primary)',
+                      strokeWidth: 2
+                    }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
           )}
         </div>
